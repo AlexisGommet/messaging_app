@@ -24,6 +24,36 @@
   color: white;
 }
 
+/* .Sign_in_button {
+  width: 100px;
+  height: 50px;
+  background-color: #282c34;
+  color: white;
+} */
+
+.Sign_in_button{
+  width: 130px;
+  height: 50px;
+  display:inline-block;
+  margin:0 0.3em 0.3em 0;
+  border-radius:2em;
+  box-sizing: border-box;
+  text-decoration:none;
+  font-family:'Roboto',sans-serif;
+  font-size: 23px;
+  font-weight:500;
+  color:#FFFFFF;
+  background-color:#282c34;
+  text-align:center;
+  transition: all 0.2s;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+.Sign_in_button:hover{
+background-color:rgba(102, 104, 110, 0.322)  
+}
+
+
 .App-link {
   color: #61dafb;
 }

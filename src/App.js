@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import './App.css';
+import ReactLoading from 'react-loading';
 
 import * as firebase from 'firebase/app';
 
@@ -41,9 +42,6 @@ function SignIn() {
   const login = async () => {
     const provider = new GoogleAuthProvider();
     await signInWithPopup(auth, provider);
-    console.log(auth.currentUser.uid);
-    console.log(auth.currentUser.displayName);
-    console.log(auth.currentUser.email);
   }
 
   return (
@@ -55,12 +53,28 @@ function SignIn() {
 }
 
 function SignOut() {
+
+  const[loading, setloading] = useState(true);
+
+  const memes = ["Loading dank memes", "Invoking dark magic", "very science, wow much application, so technology", "beep boop beep plotting destruction of humanity"];
+  const index = Math.floor(Math.random() * 4);
+
   const text = "Hello\nHere is your user info\nName: "+auth.currentUser.displayName+"\nUser id: "+auth.currentUser.uid+"\nMail: "+auth.currentUser.email+"";
   const newText = text.split ('\n').map ((item, i) => <p key={i}>{item}</p>);
+
+  setTimeout(() => {
+    setloading(false);
+  }, 4000);
+
   return (
     <>
+      {loading ?<> <ReactLoading type={"spinningBubbles"} color={"#ffffff"} height={200} width={200} /> <br></br> <p>{memes[index]}</p> </>
+      :
+      <>
       <div>{newText}</div>
       <button className='Sign_in_button' onClick={() => auth.signOut()}>Sign Out</button>
+    </>
+    }
     </>
   );
 }

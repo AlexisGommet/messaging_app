@@ -57,7 +57,7 @@ function SignOut() {
   const[loading, setloading] = useState(true);
 
   const memes = ["Loading dank memes", "Invoking dark magic", "very science, wow much application, so technology", "beep boop beep plotting destruction of humanity"];
-  const index = Math.floor(Math.random() * 4);
+  const screen = ["spinningBubbles", "balls", "bars", "bubbles", "cubes", "cylon", "spin", "spokes"];
 
   const text = "Hello\nHere is your user info\nName: "+auth.currentUser.displayName+"\nUser id: "+auth.currentUser.uid+"\nMail: "+auth.currentUser.email+"";
   const newText = text.split ('\n').map ((item, i) => <p key={i}>{item}</p>);
@@ -68,13 +68,13 @@ function SignOut() {
 
   return (
     <>
-      {loading ?<> <ReactLoading type={"spinningBubbles"} color={"#ffffff"} height={200} width={200} /> <br></br> <p>{memes[index]}</p> </>
+      {loading ? <> <ReactLoading type={screen[Math.floor(Math.random() * 8)]} color={"#ffffff"} height={200} width={200} /> <br></br> <p>{memes[Math.floor(Math.random() * 4)]}</p> </>
       :
       <>
-      <div>{newText}</div>
-      <button className='Sign_in_button' onClick={() => auth.signOut()}>Sign Out</button>
-    </>
-    }
+        <div>{newText}</div>
+        <button className='Sign_in_button' onClick={() => auth.signOut()}>Sign Out</button>
+      </>
+      }
     </>
   );
 }

@@ -8,7 +8,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { getAnalytics } from 'firebase/analytics';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { getFirestore, collection }  from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, orderBy, query }  from 'firebase/firestore';
 
 firebase.initializeApp({
     apiKey: "AIzaSyANIQzL74x4IWdwSqKNnK6552vGnrUaVeU",
@@ -60,6 +60,7 @@ function SignOut(props) {
 
   setTimeout(() => {
     setloading(false);
+    props.update(true);
   }, 4000);
 
   return auth.currentUser && (
@@ -68,7 +69,6 @@ function SignOut(props) {
       :
       <>
         <button className='Sign_in_button' onClick={() => auth.signOut()}>Sign Out</button>
-        {props.snap && props.snap.map((msg, index) => <ChatMessage key={index} message={msg} />)}
       </>
       }
     </>
@@ -77,35 +77,58 @@ function SignOut(props) {
 
 function Chat() {
 
-  // pas d'erreur mais pas de data
+  const anchor = useRef();
 
   const chatref = collection(firestore, "Chat_general");
-  const [querySnapshot] = useCollectionData(chatref, { idField: 'id' });
+  const q = query(chatref, orderBy("createdAt"))
+  const [querySnapshot] = useCollectionData(q);
+
+  const [formValue, setFormValue] = useState('');
+  const [loading, setloading] = useState(false);
+
+  const sendMessage = async (e) => {
+
+    e.preventDefault();
+
+    await addDoc(collection(firestore, "Chat_general"), {
+      text: formValue,
+      user: auth.currentUser.uid,
+      createdAt: serverTimestamp(firestore),
+      url: auth.currentUser.photoURL
+    })
+    setFormValue('');
+    anchor.current.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  let upstate = (state) => {setloading({state})}
 
   return (
     <>
-    <SignOut snap={querySnapshot}/>
+    <SignOut update={upstate}/>
+    {loading ? 
+      <>
+        <div className='chatbox'>{querySnapshot && querySnapshot.map((msg, index) => <ChatMessage key={index} message={msg} />)}</div>
+        <span ref={anchor}></span>
+        <form onSubmit={sendMessage}>
+          <input className='inp' value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder="Type a message..." />
+          <button className='send' type="submit" disabled={!formValue}>&#x2B9E;</button>
+        </form>
+      </>
+      : <></>}
     </>
   );
 }
 
 function ChatMessage(props) {
 
-  // <img src={props.message.photoURL} />
+  const messageClass = props.message.user === auth.currentUser.uid ? 'sent' : 'received';
 
 return (
-  <div>
+  <div className={`message ${messageClass}`}>
+    <img alt='userphoto' src={props.message.url} />
     <p>{props.message.text}</p>
   </div> 
 );
-}
-
-function SendMessage() {
-
-  // envoyer message
-  
-
-  
 }
 
 export default App;

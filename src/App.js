@@ -8,7 +8,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { getAnalytics } from 'firebase/analytics';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, collection }  from 'firebase/firestore';
 
 firebase.initializeApp({
     apiKey: "AIzaSyANIQzL74x4IWdwSqKNnK6552vGnrUaVeU",
@@ -27,11 +27,10 @@ const firestore = getFirestore();
 function App() {
 
   const [user] = useAuthState(auth);
-
   return (
     <div className="App">
       <header className="App-header">
-        {user ? <SignOut /> : <SignIn />}
+      {user ? <Chat />: <SignIn />} 
       </header>
     </div>
   );
@@ -52,31 +51,61 @@ function SignIn() {
   );
 }
 
-function SignOut() {
+function SignOut(props) {
 
   const[loading, setloading] = useState(true);
 
   const memes = ["Loading dank memes", "Invoking dark magic", "very science, wow much application, so technology", "beep boop beep plotting destruction of humanity"];
   const screen = ["spinningBubbles", "balls", "bars", "bubbles", "cubes", "cylon", "spin", "spokes"];
 
-  const text = "Hello\nHere is your user info\nName: "+auth.currentUser.displayName+"\nUser id: "+auth.currentUser.uid+"\nMail: "+auth.currentUser.email+"";
-  const newText = text.split ('\n').map ((item, i) => <p key={i}>{item}</p>);
-
   setTimeout(() => {
     setloading(false);
   }, 4000);
 
-  return (
+  return auth.currentUser && (
     <>
       {loading ? <> <ReactLoading type={screen[Math.floor(Math.random() * 8)]} color={"#ffffff"} height={200} width={200} /> <br></br> <p>{memes[Math.floor(Math.random() * 4)]}</p> </>
       :
       <>
-        <div>{newText}</div>
         <button className='Sign_in_button' onClick={() => auth.signOut()}>Sign Out</button>
+        {props.snap && props.snap.map((msg, index) => <ChatMessage key={index} message={msg} />)}
       </>
       }
     </>
   );
+}
+
+function Chat() {
+
+  // pas d'erreur mais pas de data
+
+  const chatref = collection(firestore, "Chat_general");
+  const [querySnapshot] = useCollectionData(chatref, { idField: 'id' });
+
+  return (
+    <>
+    <SignOut snap={querySnapshot}/>
+    </>
+  );
+}
+
+function ChatMessage(props) {
+
+  // <img src={props.message.photoURL} />
+
+return (
+  <div>
+    <p>{props.message.text}</p>
+  </div> 
+);
+}
+
+function SendMessage() {
+
+  // envoyer message
+  
+
+  
 }
 
 export default App;

@@ -6,9 +6,15 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    match /{document=**} {
+    match /Chat_general/{docId} {
       allow read: if request.auth.uid != null;
-      allow create: if request.auth.uid != null && request.auth.uid == request.ressource.data.uid;
+      allow create: if authorized();
+    }
+
+    function authorized(){
+      let isAuthenticated = request.auth.uid != null;
+      let isOwner = request.auth.uid == request.resource.data.user;
+      return isAuthenticated && isOwner;
     }
   }
 }

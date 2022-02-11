@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import './App.css';
 import ReactLoading from 'react-loading';
 
@@ -53,15 +53,20 @@ function SignIn() {
 
 function SignOut(props) {
 
-  const[loading, setloading] = useState(true);
+  const prop = props;
+
+  const[loading, setLoading] = useState(true);
 
   const memes = ["Loading dank memes", "Invoking dark magic", "very science, wow much application, so technology", "beep boop beep plotting destruction of humanity"];
   const screen = ["spinningBubbles", "balls", "bars", "bubbles", "cubes", "cylon", "spin", "spokes"];
 
-  setTimeout(() => {
-    setloading(false);
-    props.update(true);
-  }, 4000);
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading();
+      prop.update();
+      prop.scroll();
+    }, 4000);
+  }, [])
 
   return auth.currentUser && (
     <>
@@ -79,12 +84,11 @@ function Chat() {
 
   const anchor = useRef();
 
-  const chatref = collection(firestore, "Chat_general");
-  const q = query(chatref, orderBy("createdAt"))
-  const [querySnapshot] = useCollectionData(q);
+  const [querySnapshot] = useCollectionData(query(collection(firestore, "Chat_general"), orderBy("createdAt")));
 
   const [formValue, setFormValue] = useState('');
-  const [loading, setloading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [scroll, setScroll] = useState(false);
 
   const sendMessage = async (e) => {
 
@@ -100,21 +104,32 @@ function Chat() {
     anchor.current.scrollIntoView({ behavior: 'smooth' });
   }
 
-  let upstate = (state) => {setloading({state})}
+  let upstate = () => {setLoading(true)}
+
+  let scrolldown = () => {setScroll(true)}
+
+  if(scroll){
+    if (anchor !== null && anchor !== undefined){
+      setScroll(false);
+      anchor.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
 
   return (
     <>
-    <SignOut update={upstate}/>
     {loading ? 
       <>
-        <div className='chatbox'>{querySnapshot && querySnapshot.map((msg, index) => <ChatMessage key={index} message={msg} />)}</div>
-        <span ref={anchor}></span>
+        <div className='chatbox'>
+          {querySnapshot && querySnapshot.map((msg, index) => <ChatMessage key={index} message={msg} />)}
+          <span ref={anchor}></span>
+        </div>
         <form onSubmit={sendMessage}>
           <input className='inp' value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder="Type a message..." />
-          <button className='send' type="submit" disabled={!formValue}>&#x2B9E;</button>
+          <button className='send' type="submit" disabled={!formValue}><span class="emoji">&#x2B9E;</span></button>
         </form>
       </>
       : <></>}
+    <SignOut update={upstate} scroll={scrolldown}/>
     </>
   );
 }

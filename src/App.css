@@ -33,9 +33,9 @@
 
 .chatbox{
   overflow-y: scroll;
-  scrollbar-color: rebeccapurple green;
-  scrollbar-width: thin;
-  height: 600px;
+  border: 5px solid #382f46;
+  padding: 10px;
+  height: 700px;
   width: 40%;
 }
 
@@ -68,7 +68,7 @@ form {
   bottom: 0;
   background-color: rgb(24, 23, 23);
   width: 100%;
-  max-width: 728px;
+  max-width: 42%;
   display: flex;
   font-size: 1.5rem;
 }
@@ -76,6 +76,12 @@ form {
 form button {
   width: 20%;
   background-color: rgb(56, 56, 143);
+}
+
+span.emoji {
+  font-size: 60px;
+  vertical-align: middle;
+  line-height: 1;
 }
 
 .chatbox::-webkit-scrollbar {

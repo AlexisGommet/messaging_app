@@ -8,7 +8,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { getAnalytics } from 'firebase/analytics';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { getFirestore, collection, addDoc, serverTimestamp, orderBy, query }  from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, orderBy, query, onSnapshot, doc }  from 'firebase/firestore';
 
 firebase.initializeApp({
     apiKey: "AIzaSyANIQzL74x4IWdwSqKNnK6552vGnrUaVeU",
@@ -85,6 +85,10 @@ function Chat() {
   const anchor = useRef();
 
   const [querySnapshot] = useCollectionData(query(collection(firestore, "Chat_general"), orderBy("createdAt")));
+
+  const scrollonsnap = onSnapshot(collection(firestore, "Chat_general"), () => {
+    anchor.current.scrollIntoView({ behavior: 'smooth' });
+  });
 
   const [formValue, setFormValue] = useState('');
   const [loading, setLoading] = useState(false);

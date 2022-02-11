@@ -34,8 +34,9 @@
 .chatbox{
   overflow-y: scroll;
   border: 5px solid #382f46;
+  background-color: #1e1e24;
   padding: 10px;
-  height: 700px;
+  height: 600px;
   width: 40%;
 }
 

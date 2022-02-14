@@ -16,10 +16,6 @@
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
 }
@@ -31,13 +27,37 @@
   color: white;
 } */
 
+.top{
+  position: absolute;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  background-color: #0c0c0c;
+  bottom: 90%;
+  height: 10%;
+  width: 100%;
+}
+
 .chatbox{
+  position: absolute;
   overflow-y: scroll;
-  border: 5px solid #382f46;
   background-color: #1e1e24;
-  padding: 10px;
-  height: 600px;
-  width: 40%;
+  bottom: 10%;
+  height: 80%;
+  width: 100%;
+}
+
+.wrapper{
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  left: 25%;
+  bottom: 0;
+  height: 100%;
+  width: 50%;
 }
 
 .send {
@@ -60,16 +80,14 @@ input {
   color: white;
   outline: none;
   border: none;
-  padding: 0 10px;
 }
 
 form {
-  height: 10vh;
-  position: fixed;
+  position: absolute;
+  height: 10%;
   bottom: 0;
   background-color: rgb(24, 23, 23);
   width: 100%;
-  max-width: 42%;
   display: flex;
   font-size: 1.5rem;
 }
@@ -86,24 +104,21 @@ span.emoji {
 }
 
 .chatbox::-webkit-scrollbar {
-  width: 0.25rem;
+  width: 0.5rem;
 }
 
 .chatbox::-webkit-scrollbar-track {
-  background: #1e1e24;
+  background: #292929;
 }
 
 .chatbox::-webkit-scrollbar-thumb {
-  background: #6649b8;
+  background: #717075;
+  border-radius:2em;
 }
 
 .Sign_in_button{
   width: 130px;
   height: 50px;
-  position: fixed;
-  top: 5%;
-  left: 46%;
-  margin:0 0.3em 0.3em 0;
   border-radius:2em;
   box-sizing: border-box;
   text-decoration:none;
@@ -121,17 +136,39 @@ span.emoji {
 background-color:rgba(102, 104, 110, 0.322)  
 }
 
+#sign_out{
+  width: 130px;
+  height: 50px;
+  margin-left: 50%;
+  border-radius:2em;
+  box-sizing: border-box;
+  text-decoration:none;
+  font-family:'Roboto',sans-serif;
+  font-size: 23px;
+  font-weight:500;
+  color:#FFFFFF;
+  background-color:#282c34;
+  text-align:center;
+  transition: all 0.2s;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+#sign_out:hover{
+background-color:rgba(102, 104, 110, 0.322)  
+}
+
 img {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  margin: 2px 5px;
+  margin: 2px 10px;
 }
 
 p {
   max-width: 500px;
   margin-bottom: 12px;
-  line-height: 24px;
+  line-height: 25px;
+  font-size: 20px;
   padding: 10px 20px;
   border-radius: 25px;
   position: relative;

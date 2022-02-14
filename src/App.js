@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import './App.css';
+import logo from './logo.png'
 import ReactLoading from 'react-loading';
 
 import * as firebase from 'firebase/app';
@@ -8,7 +9,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { getAnalytics } from 'firebase/analytics';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { getFirestore, collection, addDoc, serverTimestamp, orderBy, query, onSnapshot, doc }  from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, orderBy, query, onSnapshot }  from 'firebase/firestore';
 
 firebase.initializeApp({
     apiKey: "AIzaSyANIQzL74x4IWdwSqKNnK6552vGnrUaVeU",
@@ -30,7 +31,9 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-      {user ? <Chat />: <SignIn />} 
+        <div className='wrapper'>
+          {user ? <Chat />: <SignIn />} 
+        </div>
       </header>
     </div>
   );
@@ -73,7 +76,10 @@ function SignOut(props) {
       {loading ? <> <ReactLoading type={screen[Math.floor(Math.random() * 8)]} color={"#ffffff"} height={200} width={200} /> <br></br> <p>{memes[Math.floor(Math.random() * 4)]}</p> </>
       :
       <>
-        <button className='Sign_in_button' onClick={() => auth.signOut()}>Sign Out</button>
+        <div className='top'>Not Messenger
+          <img src={logo} alt='logo'></img>
+          <button id='sign_out' onClick={() => auth.signOut()}>Sign Out</button>
+        </div>
       </>
       }
     </>
@@ -87,7 +93,9 @@ function Chat() {
   const [querySnapshot] = useCollectionData(query(collection(firestore, "Chat_general"), orderBy("createdAt")));
 
   const scrollonsnap = onSnapshot(collection(firestore, "Chat_general"), () => {
-    anchor.current.scrollIntoView({ behavior: 'smooth' });
+    if (anchor.current){
+      anchor.current.scrollIntoView({ behavior: 'smooth' });
+    }
   });
 
   const [formValue, setFormValue] = useState('');
@@ -121,19 +129,19 @@ function Chat() {
 
   return (
     <>
-    {loading ? 
-      <>
-        <div className='chatbox'>
-          {querySnapshot && querySnapshot.map((msg, index) => <ChatMessage key={index} message={msg} />)}
-          <span ref={anchor}></span>
-        </div>
-        <form onSubmit={sendMessage}>
-          <input className='inp' value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder="Type a message..." />
-          <button className='send' type="submit" disabled={!formValue}><span class="emoji">&#x2B9E;</span></button>
-        </form>
-      </>
-      : <></>}
-    <SignOut update={upstate} scroll={scrolldown}/>
+      {loading ? 
+        <>
+          <div className='chatbox'>
+            {querySnapshot && querySnapshot.map((msg, index) => <ChatMessage key={index} message={msg} />)}
+            <span ref={anchor}></span>
+          </div>
+          <form onSubmit={sendMessage}>
+            <input className='inp' value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder="Type a message..." />
+            <button className='send' type="submit" disabled={!formValue}><span className="emoji">&#x2B9E;</span></button>
+          </form>
+        </>
+        : <></>}
+      <SignOut update={upstate} scroll={scrolldown}/>
     </>
   );
 }

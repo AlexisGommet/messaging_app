@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import './App.css';
 import logo from './logo.png'
+import send from './send.png'
 import ReactLoading from 'react-loading';
 
 import * as firebase from 'firebase/app';
@@ -9,7 +10,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { getAnalytics } from 'firebase/analytics';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { getFirestore, collection, addDoc, serverTimestamp, orderBy, query, onSnapshot }  from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, orderBy, query, onSnapshot, limit, limitToLast }  from 'firebase/firestore';
 
 firebase.initializeApp({
     apiKey: "AIzaSyANIQzL74x4IWdwSqKNnK6552vGnrUaVeU",
@@ -26,8 +27,11 @@ const auth = getAuth();
 const firestore = getFirestore();
 
 const appHeight = () => document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`)
-window.addEventListener('resize', appHeight)
-appHeight()
+const landscape = () => document.documentElement.style.setProperty('--app-width', `${window.innerWidth}px`)
+window.addEventListener('resize', appHeight);
+window.addEventListener('resize', landscape);
+appHeight();
+landscape();
 
 function App() {
 
@@ -71,7 +75,7 @@ function SignOut(props) {
     setTimeout(() => {
       setLoading();
       prop.update();
-      prop.scroll();
+      prop.scroll();    
     }, 4000);
   }, [])
 
@@ -80,7 +84,7 @@ function SignOut(props) {
       {loading ? <> <ReactLoading type={screen[Math.floor(Math.random() * 8)]} color={"#ffffff"} height={200} width={200} /> <br></br> <p>{memes[Math.floor(Math.random() * 4)]}</p> </>
       :
       <>
-        <div className='top'>Not Messenger
+        <div className='top'><p>Not Messenger</p>
           <img src={logo} alt='logo'></img>
           <button id='sign_out' onClick={() => auth.signOut()}>Sign Out</button>
         </div>
@@ -94,17 +98,20 @@ function Chat() {
 
   const anchor = useRef();
 
-  const [querySnapshot] = useCollectionData(query(collection(firestore, "Chat_general"), orderBy("createdAt")));
-
-  const scrollonsnap = onSnapshot(collection(firestore, "Chat_general"), () => {
-    if (anchor.current){
-      anchor.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  });
+  const [querySnapshot] = useCollectionData(query(collection(firestore, "Chat_general"), orderBy("createdAt"), limitToLast(50)));
 
   const [formValue, setFormValue] = useState('');
   const [loading, setLoading] = useState(false);
   const [scroll, setScroll] = useState(false);
+
+  const scrollonsnap = onSnapshot(collection(firestore, "Chat_general"), () => {
+    if (document.getElementById("scroll") && anchor.current) {
+      const sc = document.getElementById("scroll");
+      if(sc.scrollHeight - sc.scrollTop < 1000) {
+        anchor.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  });
 
   const sendMessage = async (e) => {
 
@@ -125,7 +132,7 @@ function Chat() {
   let scrolldown = () => {setScroll(true)}
 
   if(scroll){
-    if (anchor !== null && anchor !== undefined){
+    if (anchor.current){
       setScroll(false);
       anchor.current.scrollIntoView({ behavior: 'smooth' });
     }
@@ -135,13 +142,14 @@ function Chat() {
     <>
       {loading ? 
         <>
-          <div className='chatbox'>
+          <div onScroll={(e) => e.target.scrollTop} id='scroll' className='chatbox'>
             {querySnapshot && querySnapshot.map((msg, index) => <ChatMessage key={index} message={msg} />)}
             <span ref={anchor}></span>
           </div>
           <form onSubmit={sendMessage}>
-            <input className='inp' value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder="Type a message..." />
-            <button className='send' type="submit" disabled={!formValue}><span className="emoji">&#x2B9E;</span></button>
+            <input className='inp' value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder=" Type a message..." />
+            {/* Send icons created by Freepik - Flaticon */}
+            <button className='send' type="submit" disabled={!formValue || formValue.trim() === ""}><img alt='send_logo' src={send} className='emoji'></img></button>
           </form>
         </>
         : <></>}

@@ -180,7 +180,7 @@ p {
   position: relative;
   color: white;
   text-align: center;
-  word-break: break-all;
+  word-break: break-word;
 }
 
 .message {

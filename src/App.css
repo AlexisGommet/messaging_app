@@ -15,7 +15,7 @@
 
 .App-header {
   background-color: #282c34;
-  min-height: 100vh;
+  min-height: var(--app-height);;
   font-size: calc(10px + 2vmin);
   color: white;
 }
@@ -56,7 +56,7 @@
   justify-content: center;
   left: 25%;
   bottom: 0;
-  height: 100%;
+  height: var(--app-height);
   width: 50%;
 }
 
@@ -123,7 +123,7 @@ span.emoji {
   box-sizing: border-box;
   text-decoration:none;
   font-family:'Roboto',sans-serif;
-  font-size: 23px;
+  font-size: 20px;
   font-weight:500;
   color:#FFFFFF;
   background-color:#282c34;
@@ -137,8 +137,8 @@ background-color:rgba(102, 104, 110, 0.322)
 }
 
 #sign_out{
-  width: 130px;
-  height: 50px;
+  width: 115px;
+  height: 40px;
   margin-left: 50%;
   border-radius:2em;
   box-sizing: border-box;
@@ -212,9 +212,23 @@ button:disabled {
     width: 100%;
   }
   #sign_out{
-    width: 130px;
-    height: 50px;
+    width: 100px;
+    height: 35px;
+    font-size: 15px;
     margin-left: 5%;
+  }
+  span.emoji {
+    font-size: 10px;
+    line-height: 1;
+  }
+  .top{
+    font-size: 15px;
+  }
+  .top img{
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin: 0px;
   }
 }
 

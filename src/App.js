@@ -25,6 +25,10 @@ const analytics = getAnalytics();
 const auth = getAuth();
 const firestore = getFirestore();
 
+const appHeight = () => document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`)
+window.addEventListener('resize', appHeight)
+appHeight()
+
 function App() {
 
   const [user] = useAuthState(auth);

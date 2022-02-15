@@ -74,8 +74,7 @@ function SignOut(props) {
   useEffect(() => {
     setTimeout(() => {
       setLoading();
-      prop.update();
-      prop.scroll();    
+      prop.update();  
     }, 4000);
   }, [])
 
@@ -100,20 +99,26 @@ function Chat() {
 
   const [querySnapshot] = useCollectionData(query(collection(firestore, "Chat_general"), orderBy("createdAt"), limitToLast(50)));
 
-  const [formValue, setFormValue] = useState('');
   const [loading, setLoading] = useState(false);
-  const [scroll, setScroll] = useState(false);
+
+  // garde ça pour faire le chargement
+  
+  // const scrollonsnap = onSnapshot(collection(firestore, "Chat_general"), () => {
+  //   if (document.getElementById("scroll") && anchor.current) {
+  //     const sc = document.getElementById("scroll");
+  //     if(sc.scrollHeight - sc.scrollTop < 1000) {
+  //       anchor.current.scrollIntoView({ behavior: 'smooth' });
+  //     }
+  //   }
+  // });
 
   const scrollonsnap = onSnapshot(collection(firestore, "Chat_general"), () => {
-    if (document.getElementById("scroll") && anchor.current) {
-      const sc = document.getElementById("scroll");
-      if(sc.scrollHeight - sc.scrollTop < 1000) {
-        anchor.current.scrollIntoView({ behavior: 'smooth' });
-      }
+    if (anchor.current) {
+      anchor.current.scrollIntoView({ behavior: 'smooth' });
     }
   });
 
-  const sendMessage = async (e) => {
+  const sendMessage = async (e,resetform,formValue) => {
 
     e.preventDefault();
 
@@ -123,20 +128,10 @@ function Chat() {
       createdAt: serverTimestamp(firestore),
       url: auth.currentUser.photoURL
     })
-    setFormValue('');
-    anchor.current.scrollIntoView({ behavior: 'smooth' });
+    resetform();
   }
 
   let upstate = () => {setLoading(true)}
-
-  let scrolldown = () => {setScroll(true)}
-
-  if(scroll){
-    if (anchor.current){
-      setScroll(false);
-      anchor.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }
 
   return (
     <>
@@ -146,16 +141,27 @@ function Chat() {
             {querySnapshot && querySnapshot.map((msg, index) => <ChatMessage key={index} message={msg} />)}
             <span ref={anchor}></span>
           </div>
-          <form onSubmit={sendMessage}>
-            <input className='inp' value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder=" Type a message..." />
-            {/* Send icons created by Freepik - Flaticon */}
-            <button className='send' type="submit" disabled={!formValue || formValue.trim() === ""}><img alt='send_logo' src={send} className='emoji'></img></button>
-          </form>
+          <Form send_msg={sendMessage}/>
         </>
         : <></>}
-      <SignOut update={upstate} scroll={scrolldown}/>
+      <SignOut update={upstate}/>
     </>
   );
+}
+
+function Form(props) {
+
+const [formValue, setFormValue] = useState('');
+
+let resetform = () => {setFormValue('')}
+
+return (
+  <form onSubmit={(e) => props.send_msg(e,resetform,formValue)}>
+    <input className='inp' value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder=" Type a message..." />
+    {/* Send icons created by Freepik - Flaticon */}
+    <button className='send' type="submit" disabled={!formValue || formValue.trim() === ""}><img alt='send_logo' src={send} className='emoji'></img></button>
+  </form>
+);
 }
 
 function ChatMessage(props) {

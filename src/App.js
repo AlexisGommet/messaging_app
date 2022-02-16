@@ -10,7 +10,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { getAnalytics } from 'firebase/analytics';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { getFirestore, collection, addDoc, serverTimestamp, orderBy, query, onSnapshot, limit, limitToLast }  from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, orderBy, query, onSnapshot, limitToLast }  from 'firebase/firestore';
 
 firebase.initializeApp({
     apiKey: "AIzaSyANIQzL74x4IWdwSqKNnK6552vGnrUaVeU",
@@ -97,9 +97,15 @@ function Chat() {
 
   const anchor = useRef();
 
-  const [querySnapshot] = useCollectionData(query(collection(firestore, "Chat_general"), orderBy("createdAt"), limitToLast(50)));
+  const [querySnapshot] = useCollectionData(query(collection(firestore, "Chat_general"), orderBy("createdAt"), limitToLast(500)));
 
   const [loading, setLoading] = useState(false);
+  let day = "0";
+  const setDay = (newday) => {day = newday;}
+  const getDay = () => {return day;}
+  let dayint = 0;
+  const getDayInt = () => {return dayint;}
+  const setDayInt = (newdayint) => {dayint = newdayint;}
 
   // garde ça pour faire le chargement
   
@@ -138,7 +144,7 @@ function Chat() {
       {loading ? 
         <>
           <div onScroll={(e) => e.target.scrollTop} id='scroll' className='chatbox'>
-            {querySnapshot && querySnapshot.map((msg, index) => <ChatMessage key={index} message={msg} />)}
+            {querySnapshot && querySnapshot.map((msg, index) => <ChatMessage key={index} message={msg} d={getDay} ds={setDay} di={getDayInt} dis={setDayInt}/>)}
             <span ref={anchor}></span>
           </div>
           <Form send_msg={sendMessage}/>
@@ -165,15 +171,38 @@ return (
 }
 
 function ChatMessage(props) {
-
+  
   const messageClass = props.message.user === auth.currentUser.uid ? 'sent' : 'received';
+  let hour = "";
+  let dayint2 = "";
+  let newdaystr = "";
+  let current_day = "";
 
-return (
-  <div className={`message ${messageClass}`}>
-    <img alt='userphoto' src={props.message.url} />
-    <p>{props.message.text}</p>
-  </div> 
-);
+  if(props.message.createdAt){
+    hour = props.message.createdAt.toDate().toString().substr(16,5);
+    dayint2 = parseInt(props.message.createdAt.toDate().toString().substr(8,2));
+    newdaystr = props.message.createdAt.toDate().toString().substr(4,6);
+    current_day = props.message.createdAt.valueOf();
+  }
+
+  const dayint = props.di();
+  const day = props.d();
+  const newday = (day === current_day) || (day < current_day && dayint !== dayint2) ? true : false;
+  
+  if(newday){props.ds(current_day);props.dis(dayint2);}
+
+  return (
+    <>
+    {newday ? <><br></br><div className='newday'>{newdaystr}</div><br></br></> : <></>}
+    <div className={`message ${messageClass}`}>
+      <img alt='userphoto' src={props.message.url} />
+      <p>{props.message.text}</p>
+      <p id='hour'>{hour}</p>
+    </div>
+    </>
+  );
 }
+// format de date
+// Tue Feb 15 2022 21:44:22 GMT+0100 (heure normale d’Europe centrale)
 
 export default App;

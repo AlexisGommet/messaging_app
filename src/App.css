@@ -208,6 +208,16 @@ button:disabled {
   cursor: not-allowed;
 }
 
+#hour {
+  background: none;
+  color: rgb(110, 109, 109);
+  font-size: 11px;
+}
+
+.newday {
+  color: rgb(110, 109, 109);
+  font-size: 15px;
+}
 
 .App-link {
   color: #61dafb;

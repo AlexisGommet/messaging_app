@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useLayoutEffect, useMemo } from 'react';
 import './App.css';
 import logo from './logo.png'
 import send from './send.png'
@@ -96,10 +96,15 @@ function SignOut(props) {
 function Chat() {
 
   const anchor = useRef();
-
-  const [querySnapshot] = useCollectionData(query(collection(firestore, "Chat_general"), orderBy("createdAt"), limitToLast(500)));
+  const listRef = useRef();
+  const previousScrollDiff = useRef(0);
 
   const [loading, setLoading] = useState(false);
+  const [loadmore, setLoadMore] = useState(12);
+  const canload = useRef(false);
+
+  const [querySnapshot] = useCollectionData(query(collection(firestore, "Chat_general"), orderBy("createdAt"), limitToLast(loadmore)));
+
   let day = "0";
   const setDay = (newday) => {day = newday;}
   const getDay = () => {return day;}
@@ -107,19 +112,8 @@ function Chat() {
   const getDayInt = () => {return dayint;}
   const setDayInt = (newdayint) => {dayint = newdayint;}
 
-  // garde ça pour faire le chargement
-  
-  // const scrollonsnap = onSnapshot(collection(firestore, "Chat_general"), () => {
-  //   if (document.getElementById("scroll") && anchor.current) {
-  //     const sc = document.getElementById("scroll");
-  //     if(sc.scrollHeight - sc.scrollTop < 1000) {
-  //       anchor.current.scrollIntoView({ behavior: 'smooth' });
-  //     }
-  //   }
-  // });
-
   const scrollonsnap = onSnapshot(collection(firestore, "Chat_general"), () => {
-    if (anchor.current) {
+    if (anchor.current && canload.current) {
       anchor.current.scrollIntoView({ behavior: 'smooth' });
     }
   });
@@ -137,13 +131,37 @@ function Chat() {
     resetform();
   }
 
+  useEffect(() => {
+    canload.current = false;
+    setTimeout(() => {
+      canload.current = true;  
+    }, 500);
+  })
+
+  const load = (scrollTop, scrollHeight) => {  
+    if(scrollHeight - scrollTop > scrollHeight * 0.98 && canload.current && loadmore <= querySnapshot.length){
+      previousScrollDiff.current = listRef.current.scrollHeight - listRef.current.scrollTop;
+      setLoadMore(loadmore + 20);  
+    } 
+  }
+
   let upstate = () => {setLoading(true)}
+
+   useEffect(()=>{
+    if(listRef.current){
+      listRef.current.scroll({
+        top: listRef.current.scrollHeight - previousScrollDiff.current,
+        left: 0,
+        behavior: 'instant'
+      });
+    }
+   })
 
   return (
     <>
       {loading ? 
         <>
-          <div onScroll={(e) => e.target.scrollTop} id='scroll' className='chatbox'>
+          <div onScroll={(e) => load(e.target.scrollTop, e.target.scrollHeight)} id='scroll' className='chatbox' ref={listRef}>
             {querySnapshot && querySnapshot.map((msg, index) => <ChatMessage key={index} message={msg} d={getDay} ds={setDay} di={getDayInt} dis={setDayInt}/>)}
             <span ref={anchor}></span>
           </div>

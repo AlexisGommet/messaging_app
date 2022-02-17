@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useLayoutEffect, useMemo } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import './App.css';
 import logo from './logo.png'
 import send from './send.png'
@@ -21,6 +21,8 @@ firebase.initializeApp({
     appId: "1:522534076303:web:20b4491c656aff1bdb55fa",
     measurementId: "G-QRKBHTYSCJ"
 })
+
+// TODO : commentez code et réduire les occurences des heures
 
 const analytics = getAnalytics();
 const auth = getAuth();
@@ -100,10 +102,12 @@ function Chat() {
   const previousScrollDiff = useRef(0);
 
   const [loading, setLoading] = useState(false);
-  const [loadmore, setLoadMore] = useState(12);
+  const [loadmore, setLoadMore] = useState(30);
   const canload = useRef(false);
 
   const [querySnapshot] = useCollectionData(query(collection(firestore, "Chat_general"), orderBy("createdAt"), limitToLast(loadmore)));
+
+  // TODO : commentez code et réduire les occurences des heures
 
   let day = "0";
   const setDay = (newday) => {day = newday;}
@@ -131,6 +135,8 @@ function Chat() {
     resetform();
   }
 
+  // TODO : commentez code et réduire les occurences des heures
+
   useEffect(() => {
     canload.current = false;
     setTimeout(() => {
@@ -141,9 +147,11 @@ function Chat() {
   const load = (scrollTop, scrollHeight) => {  
     if(scrollHeight - scrollTop > scrollHeight * 0.98 && canload.current && loadmore <= querySnapshot.length){
       previousScrollDiff.current = listRef.current.scrollHeight - listRef.current.scrollTop;
-      setLoadMore(loadmore + 20);  
+      setLoadMore(loadmore + 10);  
     } 
   }
+
+  // TODO : commentez code et réduire les occurences des heures
 
   let upstate = () => {setLoading(true)}
 

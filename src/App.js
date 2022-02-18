@@ -22,7 +22,7 @@ firebase.initializeApp({
     measurementId: "G-QRKBHTYSCJ"
 })
 
-// TODO : commentez code et réduire les occurences des heures
+// TODO : commentez code et si messages < 5 min, enlevez photo pour messages suivants et les rapprochez
 
 const analytics = getAnalytics();
 const auth = getAuth();
@@ -103,13 +103,13 @@ function Chat() {
   const canload = useRef(false);
   const scrollonload = useRef(false);
 
-  const [loading, setLoading] = useState(false);
-  const [loadmore, setLoadMore] = useState(30);
+  const [loading, setLoading] = useState(false); 
+  const [loadmore, setLoadMore] = useState(window.innerHeight > 1100 ? 30 : 15);
   
 
   const [querySnapshot] = useCollectionData(query(collection(firestore, "Chat_general"), orderBy("createdAt"), limitToLast(loadmore)));
 
-  // TODO : commentez code et réduire les occurences des heures
+  // TODO : commentez code et si messages < 5 min, enlevez photo pour messages suivants et les rapprochez
 
   let day = "0";
   const setDay = (newday) => {day = newday;}
@@ -119,7 +119,10 @@ function Chat() {
   const setDayInt = (newdayint) => {dayint = newdayint;}
   let hour = "00:00";
   const getHour = () => {return hour;}
-  const setHour= (newhour) => {hour = newhour;}
+  const setHour = (newhour) => {hour = newhour;}
+  let hourf = "0";
+  const getHourf = () => {return hourf;}
+  const setHourf = (newhour) => {hourf = newhour;}
 
   const scrollonsnap = onSnapshot(collection(firestore, "Chat_general"), () => {
     if (anchor.current && canload.current) {
@@ -140,7 +143,7 @@ function Chat() {
     resetform();
   }
 
-  // TODO : commentez code et réduire les occurences des heures
+  // TODO : commentez code et si messages < 5 min, enlevez photo pour messages suivants et les rapprochez
 
   useEffect(() => {
     setTimeout(() => {
@@ -162,7 +165,7 @@ function Chat() {
     } 
   }
 
-  // TODO : commentez code et réduire les occurences des heures
+  // TODO : commentez code et si messages < 5 min, enlevez photo pour messages suivants et les rapprochez
 
   let upstate = () => {setLoading(true)}
 
@@ -181,7 +184,7 @@ function Chat() {
       {loading ? 
         <>
           <div onScroll={(e) => load(e.target.scrollTop, e.target.scrollHeight)} id='scroll' className='chatbox' ref={listRef}>
-            {querySnapshot && querySnapshot.map((msg, index) => <ChatMessage key={index} message={msg} d={getDay} ds={setDay} di={getDayInt} dis={setDayInt} h={getHour} hs={setHour}/>)}
+            {querySnapshot && querySnapshot.map((msg, index) => <ChatMessage key={index} message={msg} d={getDay} ds={setDay} di={getDayInt} dis={setDayInt} h={getHour} hs={setHour} hf={getHourf} hfs={setHourf}/>)}
             <span ref={anchor}></span>
           </div>
           <Form send_msg={sendMessage}/>
@@ -216,23 +219,22 @@ function ChatMessage(props) {
   let current_day = "";
 
   if(props.message.createdAt){
-    hour = props.message.createdAt.toDate().toString().substr(16,5);
-    dayint2 = parseInt(props.message.createdAt.toDate().toString().substr(8,2));
-    newdaystr = props.message.createdAt.toDate().toString().substr(4,6);
+    const mes = props.message.createdAt.toDate().toString();
+    hour = mes.substr(16,5);
+    dayint2 = parseInt(mes.substr(8,2));
+    newdaystr = mes.substr(4,6);
     current_day = props.message.createdAt.valueOf();
   }
 
   const dayint = props.di();
   const day = props.d();
-  const newday = (day === current_day) || (day < current_day && dayint !== dayint2);
-  const old_hour = parseInt(props.h().substr(0,2));
-  const new_hour = parseInt(hour.substr(0,2));
-  const old_minutes = parseInt(props.h().substr(3,2));
-  const new_minutes = parseInt(hour.substr(3,2))
-  const newhour =  (old_hour <= new_hour  && old_minutes + 5 <= new_minutes) || newday;
+  const hourf = parseFloat(props.hf());
   
+  const newday = (day === current_day) || (day < current_day && dayint !== dayint2);
+  const newhour =  hourf + 300 <= parseFloat(current_day) || newday || hourf === parseFloat(current_day);
+
   if(newday){props.ds(current_day);props.dis(dayint2);}
-  if(newhour){props.hs(hour);}
+  if(newhour){props.hfs(current_day);}
 
   return (
     <>
@@ -245,7 +247,5 @@ function ChatMessage(props) {
     </>
   );
 }
-// format de date
-// Tue Feb 15 2022 21:44:22 GMT+0100 (heure normale d’Europe centrale)
 
 export default App;

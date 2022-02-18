@@ -100,10 +100,12 @@ function Chat() {
   const anchor = useRef();
   const listRef = useRef();
   const previousScrollDiff = useRef(0);
+  const canload = useRef(false);
+  const scrollonload = useRef(false);
 
   const [loading, setLoading] = useState(false);
   const [loadmore, setLoadMore] = useState(30);
-  const canload = useRef(false);
+  
 
   const [querySnapshot] = useCollectionData(query(collection(firestore, "Chat_general"), orderBy("createdAt"), limitToLast(loadmore)));
 
@@ -115,6 +117,9 @@ function Chat() {
   let dayint = 0;
   const getDayInt = () => {return dayint;}
   const setDayInt = (newdayint) => {dayint = newdayint;}
+  let hour = "00:00";
+  const getHour = () => {return hour;}
+  const setHour= (newhour) => {hour = newhour;}
 
   const scrollonsnap = onSnapshot(collection(firestore, "Chat_general"), () => {
     if (anchor.current && canload.current) {
@@ -138,10 +143,16 @@ function Chat() {
   // TODO : commentez code et réduire les occurences des heures
 
   useEffect(() => {
-    canload.current = false;
+    setTimeout(() => {
+      scrollonload.current = true;  
+    }, 1000);
+  }, [])
+
+  useEffect(() => {
+    canload.current = false; 
     setTimeout(() => {
       canload.current = true;  
-    }, 500);
+    }, 100);
   })
 
   const load = (scrollTop, scrollHeight) => {  
@@ -156,7 +167,7 @@ function Chat() {
   let upstate = () => {setLoading(true)}
 
    useEffect(()=>{
-    if(listRef.current){
+    if(listRef.current && scrollonload.current){
       listRef.current.scroll({
         top: listRef.current.scrollHeight - previousScrollDiff.current,
         left: 0,
@@ -170,7 +181,7 @@ function Chat() {
       {loading ? 
         <>
           <div onScroll={(e) => load(e.target.scrollTop, e.target.scrollHeight)} id='scroll' className='chatbox' ref={listRef}>
-            {querySnapshot && querySnapshot.map((msg, index) => <ChatMessage key={index} message={msg} d={getDay} ds={setDay} di={getDayInt} dis={setDayInt}/>)}
+            {querySnapshot && querySnapshot.map((msg, index) => <ChatMessage key={index} message={msg} d={getDay} ds={setDay} di={getDayInt} dis={setDayInt} h={getHour} hs={setHour}/>)}
             <span ref={anchor}></span>
           </div>
           <Form send_msg={sendMessage}/>
@@ -213,9 +224,15 @@ function ChatMessage(props) {
 
   const dayint = props.di();
   const day = props.d();
-  const newday = (day === current_day) || (day < current_day && dayint !== dayint2) ? true : false;
+  const newday = (day === current_day) || (day < current_day && dayint !== dayint2);
+  const old_hour = parseInt(props.h().substr(0,2));
+  const new_hour = parseInt(hour.substr(0,2));
+  const old_minutes = parseInt(props.h().substr(3,2));
+  const new_minutes = parseInt(hour.substr(3,2))
+  const newhour =  (old_hour <= new_hour  && old_minutes + 5 <= new_minutes) || newday;
   
   if(newday){props.ds(current_day);props.dis(dayint2);}
+  if(newhour){props.hs(hour);}
 
   return (
     <>
@@ -223,7 +240,7 @@ function ChatMessage(props) {
     <div className={`message ${messageClass}`}>
       <img alt='userphoto' src={props.message.url} />
       <p>{props.message.text}</p>
-      <p id='hour'>{hour}</p>
+      {newhour ? <p id='hour'>{hour}</p> : <></>} 
     </div>
     </>
   );

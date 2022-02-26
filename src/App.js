@@ -22,7 +22,7 @@ firebase.initializeApp({
     measurementId: "G-QRKBHTYSCJ"
 })
 
-// TODO : Enlevez photo pour messages suivants (5 min) et les rapprochez
+// TODO : Trouvez un moyen de changer les bordures des premiers et derniers messages groupés
 
 const analytics = getAnalytics();
 const auth = getAuth();
@@ -112,8 +112,6 @@ function Chat() {
   // Get collection for this chat
   const [querySnapshot] = useCollectionData(query(collection(firestore, "Chat_general"), orderBy("createdAt"), limitToLast(loadmore)));
 
-  // TODO : Enlevez photo pour messages suivants (5 min) et les rapprochez
-
   let day = "0";
   const setDay = (newday) => {day = newday;}
   const getDay = () => {return day;}
@@ -126,6 +124,9 @@ function Chat() {
   let hourf = "0";
   const getHourf = () => {return hourf;}
   const setHourf = (newhour) => {hourf = newhour;}
+  let last_user = "";
+  const getLastUser = () => {return last_user;}
+  const setLastUser = (newuser) => {last_user = newuser;}
 
   // Scroll to bottom on other people's messages
   const scrollonsnap = onSnapshot(collection(firestore, "Chat_general"), () => {
@@ -152,8 +153,6 @@ function Chat() {
     })
     resetform();
   }
-
-  // TODO : Enlevez photo pour messages suivants (5 min) et les rapprochez
 
   // To not scroll instantly to bottom on first render
   useEffect(() => {
@@ -186,19 +185,17 @@ function Chat() {
     } 
   }
 
-  // TODO : Enlevez photo pour messages suivants (5 min) et les rapprochez
-
   // Props for SignOut
   let upstate = () => {setLoading(true)}
 
   let scroll = () => {anchor.current.scrollIntoView({ behavior: 'smooth' });}
-
+  
   return (
     <>
       {loading ? 
         <>
           <div onScroll={(e) => load(e.target.scrollTop, e.target.scrollHeight)} id='scroll' className='chatbox' ref={listRef}>
-            {querySnapshot && querySnapshot.map((msg, index) => <ChatMessage key={index} message={msg} d={getDay} ds={setDay} di={getDayInt} dis={setDayInt} h={getHour} hs={setHour} hf={getHourf} hfs={setHourf}/>)}
+            {querySnapshot && querySnapshot.map((msg, index) => <ChatMessage key={index} message={msg} d={getDay} ds={setDay} di={getDayInt} dis={setDayInt} h={getHour} hs={setHour} hf={getHourf} hfs={setHourf} lu={getLastUser} lus={setLastUser}/>)}
             <span ref={anchor}></span>
           </div>
           <Form send_msg={sendMessage}/>
@@ -251,17 +248,23 @@ function ChatMessage(props) {
   // Display day every new day
   const newday = (day === current_day) || (day < current_day && dayint !== dayint2);
   // Display hour every 5 min only
-  const newhour =  hourf + 300 <= parseFloat(current_day) || newday || hourf === parseFloat(current_day);
+  const newhour =  hourf + 300 <= parseFloat(current_day) || newday || hourf === parseFloat(current_day) || props.message.user !== props.lu();
 
   if(newday){props.ds(current_day);props.dis(dayint2);}
   if(newhour){props.hfs(current_day);}
   // ******************************************************************************************************* //
 
+  // Determine if message should be grouped close with other messages
+  const sameLastUser = !newday && !newhour && props.message.user === props.lu() ? 'grouped' : '';
+
+  // Update last user
+  props.lus(props.message.user);
+
   return (
     <>
-    {newday ? <><br></br><div className='newday'>{newdaystr}</div><br></br></> : <></>}
-    <div className={`message ${messageClass}`}>
-      <img alt='userphoto' src={props.message.url} />
+    {newday ? <><br></br><div className='newday'><div className='newdayline'></div>{newdaystr}<div className='newdayline'></div></div><br></br></> : <></>}
+    <div className={`message ${messageClass} ${sameLastUser}`}>
+      {sameLastUser ?  <></> : <img alt='userphoto' src={props.message.url}/>}
       <p>{props.message.text}</p>
       {newhour ? <p id='hour'>{hour}</p> : <></>} 
     </div>

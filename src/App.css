@@ -199,6 +199,20 @@ p {
   border-radius: 8px 25px 25px 8px;
 }
 
+.scrollbottom {
+  width: 40px;
+  height: 40px;
+  margin: auto;
+  bottom: 15%;
+  position: fixed;
+  background-color: #32323b;
+  color: #0b93f6;
+  font-size: 25px;
+  cursor: pointer;
+  border-radius: 50%;
+  border: #606775 solid 2px;
+}
+
 .sent {
   flex-direction: row-reverse;
 }

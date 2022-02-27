@@ -22,7 +22,7 @@ firebase.initializeApp({
     measurementId: "G-QRKBHTYSCJ"
 })
 
-// TODO : Trouvez un moyen de changer les bordures des premiers et derniers messages groupés
+// TODO : Trouvez un moyen de changer les bordures des premiers et derniers messages groupés / margin bottom on last message
 
 const analytics = getAnalytics();
 const auth = getAuth();
@@ -108,6 +108,7 @@ function Chat() {
   const [loading, setLoading] = useState(false); 
   // Load more messages for tall screens else the loading of more messages on scroll to top will break
   const [loadmore, setLoadMore] = useState(window.innerHeight > 1100 ? 30 : 15);
+  const [scrollbottombtn, setScrollBottomBtn] = useState(false);
   
   // Get collection for this chat
   const [querySnapshot] = useCollectionData(query(collection(firestore, "Chat_general"), orderBy("createdAt"), limitToLast(loadmore)));
@@ -177,12 +178,34 @@ function Chat() {
     }
   })
 
-  // If user scroll to the top, get actual scroll height and load more messages
-  const load = (scrollTop, scrollHeight) => {  
+  const load = (scrollTop, scrollHeight, offsetHeight) => {
+  // Spaghetti code so that re-render of scroll to bottom button doesn't interfere with anything else
+  // ******************************************************************************* //  
+    if(offsetHeight + scrollTop < scrollHeight * 0.9){
+      if(!scrollbottombtn && !(scrollHeight - scrollTop > scrollHeight * 0.98)){
+        canload.current = false;
+        scrollonload.current = false;
+        setTimeout(() => {
+          canload.current = true; 
+          scrollonload.current = true; 
+        }, 100);
+      }
+      setScrollBottomBtn(true);  
+    }else if(scrollbottombtn && !(scrollHeight - scrollTop > scrollHeight * 0.98)){
+      canload.current = false;
+      scrollonload.current = false;
+      setTimeout(() => {
+        canload.current = true; 
+        scrollonload.current = true; 
+      }, 100);
+      setScrollBottomBtn(false);
+    } 
+    // ******************************************************************************* // 
+    // If user scroll to the top, get actual scroll height and load more messages
     if(scrollHeight - scrollTop > scrollHeight * 0.98 && canload.current && loadmore <= querySnapshot.length && scrollonload.current){
       previousScrollDiff.current = listRef.current.scrollHeight - listRef.current.scrollTop;
       setLoadMore(loadmore + 10);  
-    } 
+    }    
   }
 
   // Props for SignOut
@@ -194,10 +217,11 @@ function Chat() {
     <>
       {loading ? 
         <>
-          <div onScroll={(e) => load(e.target.scrollTop, e.target.scrollHeight)} id='scroll' className='chatbox' ref={listRef}>
+          <div onScroll={(e) => load(e.target.scrollTop, e.target.scrollHeight, e.target.offsetHeight)} id='scroll' className='chatbox' ref={listRef}>
             {querySnapshot && querySnapshot.map((msg, index) => <ChatMessage key={index} message={msg} d={getDay} ds={setDay} di={getDayInt} dis={setDayInt} h={getHour} hs={setHour} hf={getHourf} hfs={setHourf} lu={getLastUser} lus={setLastUser}/>)}
             <span ref={anchor}></span>
           </div>
+          {scrollbottombtn ? <button className='scrollbottom' onClick={scroll}>⬇</button>:<></>}
           <Form send_msg={sendMessage}/>
         </>
         : <></>}

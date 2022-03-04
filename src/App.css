@@ -76,7 +76,7 @@ html, body {
   font-size: 1.25rem;
 }
 
-input {
+textarea {
   line-height: 1.5;
   width: 100%;
   font-size: 1.5rem;
@@ -85,6 +85,7 @@ input {
   outline: none;
   border: none;
   word-break: break-word;
+  resize: none;
 }
 
 form {
@@ -118,6 +119,19 @@ img.emoji {
 }
 
 .chatbox::-webkit-scrollbar-thumb {
+  background: #717075;
+  border-radius:2em;
+}
+
+.inp::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+.inp::-webkit-scrollbar-track {
+  background: #292929;
+}
+
+.inp::-webkit-scrollbar-thumb {
   background: #717075;
   border-radius:2em;
 }

@@ -238,7 +238,7 @@ let resetform = () => {setFormValue('')}
 
 return (
   <form onSubmit={(e) => props.send_msg(e,resetform,formValue)}>
-    <input className='inp' value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder=" Type a message..." />
+    <textarea rows={10} className='inp' value={formValue} onChange={(e) => setFormValue(e.target.value)} onKeyPress={(e) => {if (e.key === "Enter" && !e.shiftKey) {props.send_msg(e,resetform,formValue)}}} placeholder=" Type a message..." />
     {/* Send icons created by Freepik - Flaticon */}
     <button className='send' type="submit" disabled={!formValue || formValue.trim() === ""}><img alt='send_logo' src={send} className='emoji'></img></button>
   </form>

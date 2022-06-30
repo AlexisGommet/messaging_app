@@ -1,8 +1,7 @@
-# Thanks
+# Messaging app
 
-Big thanks to Fireship.io for providing the template and the knowledge to make this project 
+Thanks to Fireship.io for providing the template to start this project 
 
-Fireship's demo : https://fireship-demos.web.app/ \
-Fireship's source code : https://github.com/fireship-io/react-firebase-chat \
-Fireship's Youtube channel : https://www.youtube.com/channel/UCsBjURrPoezykLs9EqgamOA \
-Fireship's Website : https://fireship.io/ 
+Messaging React app with added features like, scroll to bottom button, dynamic message loading when scrolling up, new day indication between messages and others
+
+Plan is to have the messages borders correctly formated when in a group (like in messenger), multiple chats and a notification system.

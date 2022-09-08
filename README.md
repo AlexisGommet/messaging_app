@@ -6,4 +6,4 @@ Messaging React app with added features like, scroll to bottom button, dynamic m
 
 Plan is to have the messages borders correctly formated when in a group (like in messenger), multiple chats and a notification system.
 
-https://messaging-b6c1c.web.app/
+https://messaging.alexisgommet.com/
